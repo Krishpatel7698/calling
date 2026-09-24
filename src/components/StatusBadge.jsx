@@ -13,9 +13,9 @@ export const ProjectBadge = ({ hasProject }) => {
           borderRadius: 'var(--radius-full)',
           fontSize: '0.75rem',
           fontWeight: 700,
-          backgroundColor: 'rgba(16, 185, 129, 0.15)',
-          color: '#34d399',
-          border: '1px solid rgba(52, 211, 153, 0.35)'
+          backgroundColor: 'var(--success-bg)',
+          color: 'var(--success)',
+          border: '1px solid var(--success-border)'
         }}
       >
         <CheckCircle2 size={13} />
@@ -34,9 +34,9 @@ export const ProjectBadge = ({ hasProject }) => {
         borderRadius: 'var(--radius-full)',
         fontSize: '0.75rem',
         fontWeight: 600,
-        backgroundColor: 'rgba(148, 163, 184, 0.12)',
-        color: '#94a3b8',
-        border: '1px solid rgba(148, 163, 184, 0.25)'
+        backgroundColor: 'var(--bg-surface)',
+        color: 'var(--text-secondary)',
+        border: '1px solid var(--border-subtle)'
       }}
     >
       <XCircle size={13} />
@@ -57,33 +57,33 @@ export const ProjectTypeBadge = ({ type }) => {
   const config = {
     'Mobile App': {
       icon: Smartphone,
-      color: '#38bdf8',
-      bg: 'rgba(56, 189, 248, 0.14)',
-      border: 'rgba(56, 189, 248, 0.35)'
+      color: '#111111',
+      bg: '#F7F7F7',
+      border: '#E5E5E5'
     },
     'Website': {
       icon: Globe,
-      color: '#c084fc',
-      bg: 'rgba(192, 132, 252, 0.14)',
-      border: 'rgba(192, 132, 252, 0.35)'
+      color: '#111111',
+      bg: '#F7F7F7',
+      border: '#E5E5E5'
     },
     'CRM': {
       icon: Briefcase,
-      color: '#fbbf24',
-      bg: 'rgba(251, 191, 36, 0.14)',
-      border: 'rgba(251, 191, 36, 0.35)'
+      color: '#111111',
+      bg: '#F7F7F7',
+      border: '#E5E5E5'
     },
     'ERP': {
       icon: Cpu,
-      color: '#f43f5e',
-      bg: 'rgba(244, 63, 94, 0.14)',
-      border: 'rgba(244, 63, 94, 0.35)'
+      color: '#111111',
+      bg: '#F7F7F7',
+      border: '#E5E5E5'
     }
   }[type] || {
     icon: Globe,
-    color: '#60a5fa',
-    bg: 'rgba(59, 130, 246, 0.14)',
-    border: 'rgba(59, 130, 246, 0.35)'
+    color: '#111111',
+    bg: '#F7F7F7',
+    border: '#E5E5E5'
   };
 
   const Icon = config.icon;

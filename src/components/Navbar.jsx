@@ -1,26 +1,35 @@
 import React from 'react';
-import { PhoneCall, Search, Plus, LogOut, Shield } from 'lucide-react';
+import { PhoneCall, Search, Plus, LogOut, Bell, User, Shield } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCustomers } from '../context/CustomerContext';
 
-export const Navbar = ({ activePage, setActivePage }) => {
+export const Navbar = ({ activePage, setActivePage, onOpenProfile }) => {
   const { logout, currentUser, isFirebaseConnected } = useAuth();
-  const { searchQuery, setSearchQuery, stats } = useCustomers();
+  const { 
+    searchQuery, 
+    setSearchQuery, 
+    notifications, 
+    notificationDrawerOpen, 
+    setNotificationDrawerOpen 
+  } = useCustomers();
 
   const getPageTitle = () => {
     switch (activePage) {
-      case 'dashboard': return 'Inquiries Dashboard';
-      case 'customers': return 'Customer & Project Inquiries';
-      case 'add-customer': return 'Save Project Inquiry';
-      case 'settings': return 'System & Firebase Settings';
-      case 'customer-details': return 'Inquiry Details';
-      default: return 'Inquiry CRM';
+      case 'dashboard': return 'Sales & Operations Dashboard';
+      case 'customers': return 'Leads & Customers';
+      case 'pipeline': return 'Sales Pipeline & Kanban';
+      case 'tasks': return 'Task Management';
+      case 'quotations': return 'Quotations & Invoices';
+      case 'add-customer': return 'Add New Lead';
+      case 'settings': return 'Admin & System Settings';
+      case 'customer-details': return 'Lead Profile';
+      default: return 'CallPulse CRM';
     }
   };
 
   return (
     <header className="topbar">
-      {/* Left: Current Page Title & Mobile Brand */}
+      {/* Left: Page Title & Mobile Brand */}
       <div className="topbar-left">
         <div style={{ display: 'none' }} className="mobile-brand-wrapper">
           <PhoneCall size={20} style={{ color: '#3b82f6' }} />
@@ -30,10 +39,10 @@ export const Navbar = ({ activePage, setActivePage }) => {
         </div>
       </div>
 
-      {/* Right: Search, Quick Add, Status & Profile */}
+      {/* Right: Search, Notification Bell, Add Button & Profile */}
       <div className="topbar-right">
-        {/* Quick Search on Desktop */}
-        {activePage !== 'customers' && (
+        {/* Desktop Quick Search */}
+        {activePage !== 'customers' && activePage !== 'pipeline' && (
           <div 
             style={{
               display: 'flex',
@@ -43,10 +52,10 @@ export const Navbar = ({ activePage, setActivePage }) => {
               borderRadius: 'var(--radius-full)',
               padding: '0.4rem 0.85rem',
               gap: '0.5rem',
-              width: 220
+              width: 200
             }}
           >
-            <Search size={15} style={{ color: 'var(--text-tertiary)' }} />
+            <Search size={14} style={{ color: 'var(--text-tertiary)' }} />
             <input
               type="text"
               placeholder="Search leads..."
@@ -58,7 +67,7 @@ export const Navbar = ({ activePage, setActivePage }) => {
               style={{
                 background: 'none',
                 border: 'none',
-                fontSize: '0.85rem',
+                fontSize: '0.82rem',
                 color: 'var(--text-primary)',
                 width: '100%'
               }}
@@ -74,41 +83,94 @@ export const Navbar = ({ activePage, setActivePage }) => {
             onClick={() => setActivePage('add-customer')}
             id="topbar-add-btn"
           >
-            <Plus size={16} />
-            <span>Add Customer</span>
+            <Plus size={15} />
+            <span>Add Lead</span>
           </button>
         )}
 
-        {/* Firebase Status Badge */}
+        {/* Notification Bell with Badge */}
         <button
           type="button"
-          onClick={() => setActivePage('settings')}
-          style={{
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            padding: 0
-          }}
-          title={isFirebaseConnected ? 'Firebase Connected' : 'Firebase Disconnected. Click to configure credentials.'}
+          className="btn-icon btn-secondary btn-sm"
+          onClick={() => setNotificationDrawerOpen(!notificationDrawerOpen)}
+          title="Notifications & Reminders"
+          style={{ position: 'relative' }}
         >
-          <span 
-            className="status-badge" 
+          <Bell size={17} />
+          {notifications.length > 0 && (
+            <span 
+              style={{
+                position: 'absolute',
+                top: -3,
+                right: -3,
+                backgroundColor: '#ef4444',
+                color: '#ffffff',
+                fontSize: '0.65rem',
+                fontWeight: 800,
+                width: 17,
+                height: 17,
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                border: '2px solid var(--bg-surface)'
+              }}
+            >
+              {notifications.length}
+            </span>
+          )}
+        </button>
+
+        {/* User Profile Avatar Pill */}
+        <button
+          type="button"
+          onClick={onOpenProfile}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            background: 'var(--bg-surface-elevated)',
+            border: '1px solid var(--border-subtle)',
+            borderRadius: 'var(--radius-full)',
+            padding: '0.25rem 0.75rem 0.25rem 0.35rem',
+            cursor: 'pointer'
+          }}
+          title="Manage Profile"
+        >
+          <div 
             style={{
-              backgroundColor: isFirebaseConnected ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
-              color: isFirebaseConnected ? '#34d399' : '#f87171',
-              borderColor: isFirebaseConnected ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)',
-              fontSize: '0.75rem'
+              width: 24,
+              height: 24,
+              borderRadius: '50%',
+              backgroundColor: '#3b82f6',
+              color: '#ffffff',
+              fontSize: '0.72rem',
+              fontWeight: 700,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
             }}
           >
-            <span 
-              className="status-badge-dot" 
-              style={{ backgroundColor: isFirebaseConnected ? '#34d399' : '#f87171' }} 
-            />
-            {isFirebaseConnected ? 'Firebase Live' : 'Disconnected'}
+            {currentUser?.displayName ? currentUser.displayName[0].toUpperCase() : 'A'}
+          </div>
+          <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+            {currentUser?.displayName?.split(' ')[0] || 'Admin'}
+          </span>
+          <span 
+            style={{
+              fontSize: '0.68rem',
+              padding: '0.1rem 0.4rem',
+              borderRadius: 'var(--radius-full)',
+              backgroundColor: 'rgba(59, 130, 246, 0.2)',
+              color: '#60a5fa',
+              fontWeight: 600
+            }}
+          >
+            {currentUser?.role || 'Admin'}
           </span>
         </button>
 
-        {/* Logout (Mobile Header Action) */}
+        {/* Logout Button */}
         <button
           type="button"
           className="btn-icon btn-secondary btn-sm"

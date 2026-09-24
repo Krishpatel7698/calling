@@ -4,7 +4,8 @@ import {
   signInWithEmailAndPassword, 
   signOut, 
   onAuthStateChanged,
-  createUserWithEmailAndPassword
+  createUserWithEmailAndPassword,
+  sendPasswordResetEmail
 } from 'firebase/auth';
 import { 
   getFirestore, 
@@ -16,7 +17,10 @@ import {
   deleteDoc, 
   onSnapshot, 
   serverTimestamp,
-  arrayUnion
+  arrayUnion,
+  query,
+  orderBy,
+  limit
 } from 'firebase/firestore';
 
 // Pure environment variable Firebase configuration (.env)
@@ -269,12 +273,125 @@ export const logCallOutcomeInDb = async (customerId, { outcome, note }) => {
   return callRecord;
 };
 
+// Password Reset helper
+export const resetPasswordAdmin = async (email) => {
+  if (!isFirebaseActive()) {
+    return { success: true, message: `Password reset simulation: Instructions sent to ${email}` };
+  }
+  try {
+    await sendPasswordResetEmail(auth, email);
+    return { success: true, message: `Password reset link sent to ${email} successfully!` };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+};
+
+/* =========================================================================
+   TASK MANAGEMENT OPERATIONS (FIRESTORE)
+   ========================================================================= */
+
+export const subscribeToTasks = (onUpdate, onError) => {
+  if (!isFirebaseActive()) {
+    if (onError) onError(new Error('Firebase not active'));
+    return () => {};
+  }
+  const tasksRef = collection(db, 'crm_tasks');
+  return onSnapshot(tasksRef, (snapshot) => {
+    const tasks = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+    tasks.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+    onUpdate(tasks);
+  }, (err) => {
+    if (onError) onError(err);
+  });
+};
+
+export const addTaskToDb = async (taskData) => {
+  if (!isFirebaseActive()) throw new Error('Firestore not active');
+  const docRef = await addDoc(collection(db, 'crm_tasks'), {
+    ...taskData,
+    createdAt: new Date().toISOString(),
+    serverCreatedAt: serverTimestamp()
+  });
+  return { id: docRef.id, ...taskData };
+};
+
+export const updateTaskInDb = async (id, updateFields) => {
+  if (!isFirebaseActive()) throw new Error('Firestore not active');
+  const docRef = doc(db, 'crm_tasks', id);
+  await updateDoc(docRef, { ...updateFields, updatedAt: serverTimestamp() });
+  return true;
+};
+
+export const deleteTaskFromDb = async (id) => {
+  if (!isFirebaseActive()) throw new Error('Firestore not active');
+  await deleteDoc(doc(db, 'crm_tasks', id));
+  return true;
+};
+
+/* =========================================================================
+   QUOTATION & INVOICE OPERATIONS (FIRESTORE)
+   ========================================================================= */
+
+export const subscribeToQuotations = (onUpdate, onError) => {
+  if (!isFirebaseActive()) {
+    if (onError) onError(new Error('Firebase not active'));
+    return () => {};
+  }
+  const quotesRef = collection(db, 'crm_quotations');
+  return onSnapshot(quotesRef, (snapshot) => {
+    const list = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+    list.sort((a, b) => new Date(b.date || b.createdAt || 0) - new Date(a.date || a.createdAt || 0));
+    onUpdate(list);
+  }, (err) => {
+    if (onError) onError(err);
+  });
+};
+
+export const addQuotationToDb = async (quoteData) => {
+  if (!isFirebaseActive()) throw new Error('Firestore not active');
+  const docRef = await addDoc(collection(db, 'crm_quotations'), {
+    ...quoteData,
+    createdAt: new Date().toISOString(),
+    serverCreatedAt: serverTimestamp()
+  });
+  return { id: docRef.id, ...quoteData };
+};
+
+export const updateQuotationInDb = async (id, updateFields) => {
+  if (!isFirebaseActive()) throw new Error('Firestore not active');
+  const docRef = doc(db, 'crm_quotations', id);
+  await updateDoc(docRef, { ...updateFields, updatedAt: serverTimestamp() });
+  return true;
+};
+
+export const deleteQuotationFromDb = async (id) => {
+  if (!isFirebaseActive()) throw new Error('Firestore not active');
+  await deleteDoc(doc(db, 'crm_quotations', id));
+  return true;
+};
+
+/* =========================================================================
+   AUDIT & ACTIVITY LOGS (FIRESTORE)
+   ========================================================================= */
+
+export const logAuditInDb = async (entry) => {
+  if (!isFirebaseActive()) return;
+  try {
+    await addDoc(collection(db, 'crm_audit_logs'), {
+      ...entry,
+      timestamp: new Date().toISOString(),
+      serverTimestamp: serverTimestamp()
+    });
+  } catch (err) {
+    console.warn('Audit logging error:', err);
+  }
+};
+
 // Test Firebase configuration credentials live
 export const testFirebaseCredentials = async (config) => {
   try {
     const tempApp = initializeApp(config, 'temp-connection-test-' + Date.now());
     const tempDb = getFirestore(tempApp);
-    // Fetch attempt
     await getDocs(collection(tempDb, 'customers'));
     return { success: true, message: 'Successfully connected to Firebase Firestore!' };
   } catch (err) {
@@ -284,3 +401,4 @@ export const testFirebaseCredentials = async (config) => {
     };
   }
 };
+

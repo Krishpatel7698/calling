@@ -1,16 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { useCustomers } from '../context/CustomerContext';
-import { X, Building2, User, Phone, CheckCircle2, Layers } from 'lucide-react';
+import { X, Building2, User, Phone, CheckCircle2, Layers, Mail, MapPin, DollarSign } from 'lucide-react';
 
 const PROJECT_TYPES = ['Mobile App', 'Website', 'CRM', 'ERP'];
 
 export const EditCustomerModal = () => {
-  const { editModalData, closeEditModal, updateCustomer } = useCustomers();
+  const { 
+    editModalData, 
+    closeEditModal, 
+    updateCustomer, 
+    leadSources, 
+    leadStatuses, 
+    companySettings 
+  } = useCustomers();
   const { isOpen, customer } = editModalData;
 
   const [companyName, setCompanyName] = useState('');
   const [customerName, setCustomerName] = useState('');
   const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [address, setAddress] = useState('');
+  const [dealValue, setDealValue] = useState('');
+  const [expectedCloseDate, setExpectedCloseDate] = useState('');
+  const [assignedTo, setAssignedTo] = useState('Master Admin');
+  const [leadSource, setLeadSource] = useState('Website');
+  const [leadStatus, setLeadStatus] = useState('New Lead');
   const [hasProject, setHasProject] = useState(true);
   const [projectType, setProjectType] = useState('Mobile App');
   const [notes, setNotes] = useState('');
@@ -22,6 +36,13 @@ export const EditCustomerModal = () => {
       setCompanyName(customer.companyName || '');
       setCustomerName(customer.customerName || customer.name || '');
       setPhone(customer.phone || '');
+      setEmail(customer.email || '');
+      setAddress(customer.address || '');
+      setDealValue(String(customer.dealValue || ''));
+      setExpectedCloseDate(customer.expectedCloseDate || '');
+      setAssignedTo(customer.assignedTo || 'Master Admin');
+      setLeadSource(customer.leadSource || 'Website');
+      setLeadStatus(customer.leadStatus || customer.status || 'New Lead');
       setHasProject(Boolean(customer.hasProject));
       setProjectType(customer.projectType || 'Mobile App');
       setNotes(customer.notes || '');
@@ -38,7 +59,7 @@ export const EditCustomerModal = () => {
       return;
     }
     if (!customerName.trim()) {
-      setError('Customer name is required');
+      setError('Contact person name is required');
       return;
     }
     if (!phone.trim()) {
@@ -51,6 +72,14 @@ export const EditCustomerModal = () => {
       companyName: companyName.trim(),
       customerName: customerName.trim(),
       phone: phone.trim(),
+      email: email.trim(),
+      address: address.trim(),
+      dealValue: Number(dealValue) || 0,
+      expectedCloseDate,
+      assignedTo,
+      leadSource,
+      leadStatus,
+      status: leadStatus,
       hasProject,
       projectType: hasProject ? projectType : '',
       notes: notes.trim()
@@ -61,9 +90,9 @@ export const EditCustomerModal = () => {
 
   return (
     <div className="modal-overlay" onClick={closeEditModal}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-content" style={{ maxWidth: '640px', maxHeight: '90vh', overflowY: 'auto' }} onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h3 style={{ fontSize: '1.15rem', fontWeight: 700 }}>Edit Customer & Project Inquiry</h3>
+          <h3 style={{ fontSize: '1.15rem', fontWeight: 700 }}>Edit Customer & Lead Details</h3>
           <button 
             type="button" 
             className="btn-icon btn-secondary" 
@@ -91,59 +120,127 @@ export const EditCustomerModal = () => {
               </div>
             )}
 
-            {/* 1. Company Name */}
+            {/* Company & Contact Name */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+              <div className="form-group">
+                <label className="form-label" htmlFor="edit-company-name">
+                  Company Name *
+                </label>
+                <input
+                  id="edit-company-name"
+                  type="text"
+                  className="form-input"
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
+                  placeholder="e.g. Acme Innovations"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label" htmlFor="edit-customer-name">
+                  Contact Person *
+                </label>
+                <input
+                  id="edit-customer-name"
+                  type="text"
+                  className="form-input"
+                  value={customerName}
+                  onChange={(e) => setCustomerName(e.target.value)}
+                  placeholder="e.g. John Doe"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Phone & Email */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+              <div className="form-group">
+                <label className="form-label" htmlFor="edit-phone">
+                  Phone Number *
+                </label>
+                <input
+                  id="edit-phone"
+                  type="tel"
+                  className="form-input"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="e.g. +91 98765 43210"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label" htmlFor="edit-email">
+                  Email Address
+                </label>
+                <input
+                  id="edit-email"
+                  type="email"
+                  className="form-input"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="client@company.com"
+                />
+              </div>
+            </div>
+
             <div className="form-group">
-              <label className="form-label" htmlFor="edit-company-name">
-                Company Name *
+              <label className="form-label" htmlFor="edit-address">
+                Office / Billing Address
               </label>
               <input
-                id="edit-company-name"
+                id="edit-address"
                 type="text"
                 className="form-input"
-                value={companyName}
-                onChange={(e) => setCompanyName(e.target.value)}
-                placeholder="e.g. Acme Innovations"
-                required
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="Street address, City, State"
               />
             </div>
 
-            {/* 2. Customer Name */}
-            <div className="form-group">
-              <label className="form-label" htmlFor="edit-customer-name">
-                Customer Name *
-              </label>
-              <input
-                id="edit-customer-name"
-                type="text"
-                className="form-input"
-                value={customerName}
-                onChange={(e) => setCustomerName(e.target.value)}
-                placeholder="e.g. John Doe"
-                required
-              />
+            {/* Pipeline Stage, Deal Value & Assignee */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem' }}>
+              <div className="form-group">
+                <label className="form-label">Pipeline Stage</label>
+                <select
+                  className="form-input"
+                  value={leadStatus}
+                  onChange={(e) => setLeadStatus(e.target.value)}
+                >
+                  {leadStatuses.map((st) => (
+                    <option key={st} value={st}>{st}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Deal Value ({companySettings.currency || '₹'})</label>
+                <input
+                  type="number"
+                  className="form-input"
+                  value={dealValue}
+                  onChange={(e) => setDealValue(e.target.value)}
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Assignee</label>
+                <select
+                  className="form-input"
+                  value={assignedTo}
+                  onChange={(e) => setAssignedTo(e.target.value)}
+                >
+                  <option value="Master Admin">Master Admin</option>
+                  <option value="Rahul Sharma">Rahul Sharma</option>
+                  <option value="Priya Patel">Priya Patel</option>
+                </select>
+              </div>
             </div>
 
-            {/* 3. Phone Number */}
+            {/* Project (Yes/No) & Type */}
             <div className="form-group">
-              <label className="form-label" htmlFor="edit-phone">
-                Phone Number *
-              </label>
-              <input
-                id="edit-phone"
-                type="tel"
-                className="form-input"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="e.g. +91 98765 43210"
-                required
-              />
-            </div>
-
-            {/* 4. Is there a Project? */}
-            <div className="form-group">
-              <label className="form-label">
-                Is there a Project? *
-              </label>
+              <label className="form-label">Project Requirement?</label>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
                 <button
                   type="button"
@@ -178,11 +275,10 @@ export const EditCustomerModal = () => {
               </div>
             </div>
 
-            {/* 5. What needs to be created? */}
             {hasProject && (
               <div className="form-group">
                 <label className="form-label" htmlFor="edit-project-type">
-                  What needs to be created? *
+                  Project Type
                 </label>
                 <select
                   id="edit-project-type"
@@ -191,9 +287,7 @@ export const EditCustomerModal = () => {
                   onChange={(e) => setProjectType(e.target.value)}
                 >
                   {PROJECT_TYPES.map((t) => (
-                    <option key={t} value={t}>
-                      {t}
-                    </option>
+                    <option key={t} value={t}>{t}</option>
                   ))}
                 </select>
               </div>
@@ -202,7 +296,7 @@ export const EditCustomerModal = () => {
             {/* Notes */}
             <div className="form-group" style={{ marginBottom: 0 }}>
               <label className="form-label" htmlFor="edit-notes">
-                Notes
+                Customer Notes
               </label>
               <textarea
                 id="edit-notes"

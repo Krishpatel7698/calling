@@ -2,36 +2,45 @@ import React from 'react';
 import { 
   LayoutDashboard, 
   Users, 
+  TrendingUp,
+  CheckSquare,
+  FileText,
   UserPlus, 
   Settings, 
-  PhoneCall, 
   LogOut, 
-  Building2
+  Building2,
+  Bell,
+  Shield
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCustomers } from '../context/CustomerContext';
 
-export const Sidebar = ({ activePage, setActivePage }) => {
+export const Sidebar = ({ activePage, setActivePage, onOpenProfile }) => {
   const { logout, currentUser, isFirebaseConnected } = useAuth();
-  const { stats } = useCustomers();
+  const { stats, tasks, quotations, notifications, setNotificationDrawerOpen, companySettings } = useCustomers();
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'customers', label: 'Inquiries', icon: Users, badge: stats.total },
-    { id: 'add-customer', label: 'Add Inquiry', icon: UserPlus },
-    { id: 'settings', label: 'Settings', icon: Settings }
+    { id: 'customers', label: 'Leads & Customers', icon: Users, badge: stats.total },
+    { id: 'pipeline', label: 'Sales Pipeline', icon: TrendingUp },
+    { id: 'tasks', label: 'Task Management', icon: CheckSquare, badge: tasks.filter((t) => t.status !== 'Completed').length },
+    { id: 'quotations', label: 'Quotations & Invoices', icon: FileText, badge: quotations.length },
+    { id: 'add-customer', label: 'Add New Lead', icon: UserPlus },
+    { id: 'settings', label: 'Admin Settings', icon: Settings }
   ];
 
   return (
     <aside className="sidebar">
       {/* Brand Header */}
-      <div className="sidebar-header">
+      <div className="sidebar-header" onClick={() => setActivePage('dashboard')} style={{ cursor: 'pointer' }}>
         <div className="sidebar-brand-icon">
           <Building2 size={20} />
         </div>
-        <div>
-          <div className="sidebar-brand-title">Inquiry CRM</div>
-          <div className="sidebar-brand-subtitle">Customer & Projects</div>
+        <div style={{ overflow: 'hidden' }}>
+          <div className="sidebar-brand-title" style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+            {companySettings.companyName.split(' ')[0]} CRM
+          </div>
+          <div className="sidebar-brand-subtitle">Enterprise Calling & Sales</div>
         </div>
       </div>
 
@@ -49,42 +58,53 @@ export const Sidebar = ({ activePage, setActivePage }) => {
               tabIndex={0}
               id={`nav-link-${item.id}`}
             >
-              <Icon size={19} />
+              <Icon size={18} />
               <span>{item.label}</span>
-              {item.badge !== undefined && (
+              {item.badge !== undefined && item.badge > 0 && (
                 <span className="nav-item-badge">{item.badge}</span>
               )}
             </div>
           );
         })}
 
-        {/* Project Type Quick Summary */}
-        <div 
-          style={{
-            marginTop: 'auto',
-            padding: '1rem',
-            borderRadius: 'var(--radius-lg)',
-            backgroundColor: 'var(--bg-surface-elevated)',
-            border: '1px solid var(--border-subtle)',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '0.4rem',
-            fontSize: '0.78rem'
-          }}
-        >
-          <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>Projects Breakdown</span>
-          <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-secondary)' }}>
-            <span>Active Projects (Yes):</span>
-            <strong style={{ color: '#34d399' }}>{stats.withProject}</strong>
+        {/* Quick Follow-up Alarm Indicator Box */}
+        {stats.pendingFollowUps > 0 && (
+          <div 
+            onClick={() => setNotificationDrawerOpen(true)}
+            style={{
+              marginTop: 'auto',
+              padding: '0.85rem 1rem',
+              borderRadius: 'var(--radius-lg)',
+              backgroundColor: 'var(--warning-bg)',
+              border: '1px solid var(--warning-border)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              fontSize: '0.78rem'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--warning)' }}>
+              <Bell size={15} />
+              <span style={{ fontWeight: 700 }}>Follow-ups Due Today</span>
+            </div>
+            <span 
+              style={{
+                backgroundColor: 'var(--warning)',
+                color: '#FFFFFF',
+                padding: '0.1rem 0.5rem',
+                borderRadius: 'var(--radius-full)',
+                fontWeight: 800,
+                fontSize: '0.75rem'
+              }}
+            >
+              {stats.pendingFollowUps}
+            </span>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-secondary)' }}>
-            <span>No Project:</span>
-            <strong style={{ color: '#94a3b8' }}>{stats.withoutProject}</strong>
-          </div>
-        </div>
+        )}
       </nav>
 
-      {/* Footer / System Status & Logout */}
+      {/* Footer / User Account & Logout */}
       <div className="sidebar-footer">
         {/* Firebase Live Indicator */}
         <div 
@@ -94,34 +114,38 @@ export const Sidebar = ({ activePage, setActivePage }) => {
           title="Click to manage Firebase connection in Settings"
         >
           <span className={`connection-dot ${isFirebaseConnected ? 'online' : 'offline'}`} />
-          <span>{isFirebaseConnected ? 'Firebase Connected' : 'Firebase Disconnected'}</span>
+          <span>{isFirebaseConnected ? 'Cloud Firestore Online' : 'Local CRM Mode'}</span>
         </div>
 
-        {/* User Account / Logout */}
+        {/* User Account / Profile Click */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', overflow: 'hidden' }}>
+          <div 
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', overflow: 'hidden', cursor: 'pointer' }}
+            onClick={onOpenProfile}
+            title="Edit Profile"
+          >
             <div 
               style={{
                 width: 32,
                 height: 32,
                 borderRadius: '50%',
-                backgroundColor: 'var(--bg-surface-elevated)',
+                backgroundColor: '#111111',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontSize: '0.8rem',
                 fontWeight: 700,
-                color: '#38bdf8'
+                color: '#FFFFFF'
               }}
             >
-              {currentUser?.email ? currentUser.email[0].toUpperCase() : 'A'}
+              {currentUser?.displayName ? currentUser.displayName[0].toUpperCase() : 'A'}
             </div>
             <div style={{ overflow: 'hidden' }}>
               <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
-                {currentUser?.displayName || 'Admin'}
+                {currentUser?.displayName || 'Master Admin'}
               </div>
-              <div style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
-                {currentUser?.email || 'admin@inquirycrm.local'}
+              <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                {currentUser?.role || 'Admin'}
               </div>
             </div>
           </div>

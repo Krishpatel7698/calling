@@ -6,22 +6,28 @@ import { Navbar } from './components/Navbar';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { CallDispositionModal } from './components/CallDispositionModal';
 import { EditCustomerModal } from './components/EditCustomerModal';
+import { NotificationsDrawer } from './components/NotificationsDrawer';
+import { ProfileModal } from './components/ProfileModal';
 import { Toast } from './components/Toast';
 
 // Pages
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
 import { Customers } from './pages/Customers';
+import { Pipeline } from './pages/Pipeline';
+import { Tasks } from './pages/Tasks';
+import { Quotations } from './pages/Quotations';
 import { AddCustomer } from './pages/AddCustomer';
 import { CustomerDetails } from './pages/CustomerDetails';
 import { Settings } from './pages/Settings';
 
-import { Plus, PhoneCall } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 export default function App() {
   const { currentUser, loading } = useAuth();
   const [activePage, setActivePage] = useState('dashboard');
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   // Loading Screen
   if (loading) {
@@ -72,12 +78,20 @@ export default function App() {
   return (
     <div className="app-container">
       {/* Desktop Sidebar */}
-      <Sidebar activePage={activePage} setActivePage={setActivePage} />
+      <Sidebar 
+        activePage={activePage} 
+        setActivePage={setActivePage} 
+        onOpenProfile={() => setIsProfileModalOpen(true)}
+      />
 
       {/* Main Workspace */}
       <div className="main-content">
         {/* Top Navbar */}
-        <Navbar activePage={activePage} setActivePage={setActivePage} />
+        <Navbar 
+          activePage={activePage} 
+          setActivePage={setActivePage} 
+          onOpenProfile={() => setIsProfileModalOpen(true)}
+        />
 
         {/* Page Switcher */}
         <main>
@@ -93,6 +107,21 @@ export default function App() {
               setActivePage={setActivePage} 
               onViewDetails={handleViewCustomerDetails} 
             />
+          )}
+
+          {activePage === 'pipeline' && (
+            <Pipeline 
+              setActivePage={setActivePage} 
+              onViewDetails={handleViewCustomerDetails} 
+            />
+          )}
+
+          {activePage === 'tasks' && (
+            <Tasks />
+          )}
+
+          {activePage === 'quotations' && (
+            <Quotations />
           )}
 
           {activePage === 'add-customer' && (
@@ -128,7 +157,15 @@ export default function App() {
       {/* Mobile Sticky Bottom Navigation */}
       <MobileBottomNav activePage={activePage} setActivePage={setActivePage} />
 
-      {/* Global Modals & Notifications */}
+      {/* Global Modals, Notifications & Overlays */}
+      <NotificationsDrawer 
+        setActivePage={setActivePage} 
+        onViewDetails={handleViewCustomerDetails} 
+      />
+      <ProfileModal 
+        isOpen={isProfileModalOpen} 
+        onClose={() => setIsProfileModalOpen(false)} 
+      />
       <CallDispositionModal />
       <EditCustomerModal />
       <Toast />

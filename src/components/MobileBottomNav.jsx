@@ -1,56 +1,50 @@
 import React from 'react';
-import { LayoutDashboard, Users, UserPlus, Settings } from 'lucide-react';
+import { LayoutDashboard, Users, TrendingUp, CheckSquare, FileText } from 'lucide-react';
 import { useCustomers } from '../context/CustomerContext';
 
 export const MobileBottomNav = ({ activePage, setActivePage }) => {
-  const { stats } = useCustomers();
+  const { stats, tasks, quotations } = useCustomers();
 
-  const items = [
+  const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'customers', label: 'Customers', icon: Users, badge: stats.total },
-    { id: 'add-customer', label: 'Add Lead', icon: UserPlus },
-    { id: 'settings', label: 'Settings', icon: Settings }
+    { id: 'customers', label: 'Leads', icon: Users, badge: stats.total },
+    { id: 'pipeline', label: 'Pipeline', icon: TrendingUp },
+    { id: 'tasks', label: 'Tasks', icon: CheckSquare, badge: tasks.filter((t) => t.status !== 'Completed').length },
+    { id: 'quotations', label: 'Bills', icon: FileText }
   ];
 
   return (
-    <nav className="mobile-bottom-nav" aria-label="Mobile Navigation">
-      {items.map((item) => {
+    <nav className="mobile-bottom-nav">
+      {navItems.map((item) => {
         const Icon = item.icon;
         const isActive = activePage === item.id;
         return (
           <button
             key={item.id}
             type="button"
-            className={`mobile-nav-btn ${isActive ? 'active' : ''}`}
+            className={`bottom-nav-item ${isActive ? 'active' : ''}`}
             onClick={() => setActivePage(item.id)}
-            id={`mobile-tab-${item.id}`}
+            style={{ position: 'relative' }}
           >
-            <div style={{ position: 'relative' }}>
-              <Icon size={21} />
-              {item.badge !== undefined && item.badge > 0 && (
-                <span 
-                  style={{
-                    position: 'absolute',
-                    top: -4,
-                    right: -10,
-                    backgroundColor: '#3b82f6',
-                    color: 'white',
-                    fontSize: '0.62rem',
-                    fontWeight: 700,
-                    borderRadius: '50%',
-                    minWidth: 16,
-                    height: 16,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: '0 2px'
-                  }}
-                >
-                  {item.badge}
-                </span>
-              )}
-            </div>
+            <Icon size={20} />
             <span>{item.label}</span>
+            {item.badge !== undefined && item.badge > 0 && (
+              <span 
+                style={{
+                  position: 'absolute',
+                  top: 2,
+                  right: '25%',
+                  backgroundColor: '#3b82f6',
+                  color: '#ffffff',
+                  fontSize: '0.65rem',
+                  fontWeight: 800,
+                  padding: '0.05rem 0.35rem',
+                  borderRadius: '9999px'
+                }}
+              >
+                {item.badge}
+              </span>
+            )}
           </button>
         );
       })}

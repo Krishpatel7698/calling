@@ -5,12 +5,12 @@ export const AnalyticsCharts = ({ stats }) => {
   const { total, newCount, calledCount, interestedCount, notInterestedCount, callLaterCount, convertedCount } = stats;
 
   const items = [
-    { label: 'New', count: newCount, color: '#38bdf8' },
-    { label: 'Called', count: calledCount, color: '#fbbf24' },
-    { label: 'Interested', count: interestedCount, color: '#c084fc' },
-    { label: 'Call Later', count: callLaterCount, color: '#fb923c' },
-    { label: 'Not Interested', count: notInterestedCount, color: '#94a3b8' },
-    { label: 'Converted', count: convertedCount, color: '#34d399' }
+    { label: 'New', count: newCount, color: '#111111' },
+    { label: 'Called', count: calledCount, color: '#EA580C' },
+    { label: 'Interested', count: interestedCount, color: '#666666' },
+    { label: 'Call Later', count: callLaterCount, color: '#EA580C' },
+    { label: 'Not Interested', count: notInterestedCount, color: '#DC2626' },
+    { label: 'Converted', count: convertedCount, color: '#16A34A' }
   ];
 
   // Donut chart SVG calculations
@@ -28,7 +28,7 @@ export const AnalyticsCharts = ({ stats }) => {
             <h3 style={{ fontSize: '1.05rem', fontWeight: 700 }}>Lead Status Distribution</h3>
             <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Current breakdown of customer pipeline</p>
           </div>
-          <span style={{ fontSize: '0.8rem', color: '#60a5fa', fontWeight: 600 }}>
+          <span style={{ fontSize: '0.8rem', color: '#111111', fontWeight: 700 }}>
             {total} Total Leads
           </span>
         </div>
@@ -43,7 +43,7 @@ export const AnalyticsCharts = ({ stats }) => {
                 cy="80"
                 r={radius}
                 fill="transparent"
-                stroke="rgba(255, 255, 255, 0.06)"
+                stroke="#E5E5E5"
                 strokeWidth={strokeWidth}
               />
               {total > 0 &&
@@ -109,7 +109,7 @@ export const AnalyticsCharts = ({ stats }) => {
               <h3 style={{ fontSize: '1.05rem', fontWeight: 700 }}>Conversion Funnel</h3>
               <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Pipeline conversion from initial outreach</p>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', color: '#34d399', fontWeight: 700, fontSize: '0.9rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', color: 'var(--success)', fontWeight: 700, fontSize: '0.9rem' }}>
               <Sparkles size={16} /> {stats.conversionRate}% Rate
             </div>
           </div>
@@ -121,12 +121,12 @@ export const AnalyticsCharts = ({ stats }) => {
                 <span style={{ color: 'var(--text-secondary)' }}>Total Outreach (Called & Completed)</span>
                 <span style={{ fontWeight: 600 }}>{total - newCount} / {total} Leads</span>
               </div>
-              <div style={{ height: 8, backgroundColor: 'var(--bg-surface-elevated)', borderRadius: 4, overflow: 'hidden' }}>
+              <div style={{ height: 8, backgroundColor: '#E5E5E5', borderRadius: 4, overflow: 'hidden' }}>
                 <div 
                   style={{ 
                     width: `${stats.contactRate}%`, 
                     height: '100%', 
-                    background: 'linear-gradient(90deg, #3b82f6, #6366f1)',
+                    backgroundColor: '#111111',
                     borderRadius: 4,
                     transition: 'width 0.6s ease'
                   }} 
@@ -140,12 +140,12 @@ export const AnalyticsCharts = ({ stats }) => {
                 <span style={{ color: 'var(--text-secondary)' }}>High Intent (Interested & Call Later)</span>
                 <span style={{ fontWeight: 600 }}>{interestedCount + callLaterCount} Leads</span>
               </div>
-              <div style={{ height: 8, backgroundColor: 'var(--bg-surface-elevated)', borderRadius: 4, overflow: 'hidden' }}>
+              <div style={{ height: 8, backgroundColor: '#E5E5E5', borderRadius: 4, overflow: 'hidden' }}>
                 <div 
                   style={{ 
                     width: `${total > 0 ? Math.round(((interestedCount + callLaterCount) / total) * 100) : 0}%`, 
                     height: '100%', 
-                    background: 'linear-gradient(90deg, #c084fc, #ec4899)',
+                    backgroundColor: 'var(--warning)',
                     borderRadius: 4,
                     transition: 'width 0.6s ease'
                   }} 
@@ -157,14 +157,14 @@ export const AnalyticsCharts = ({ stats }) => {
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', marginBottom: '0.35rem' }}>
                 <span style={{ color: 'var(--text-secondary)' }}>Won & Converted</span>
-                <span style={{ fontWeight: 600, color: '#34d399' }}>{convertedCount} Converted</span>
+                <span style={{ fontWeight: 600, color: 'var(--success)' }}>{convertedCount} Converted</span>
               </div>
-              <div style={{ height: 8, backgroundColor: 'var(--bg-surface-elevated)', borderRadius: 4, overflow: 'hidden' }}>
+              <div style={{ height: 8, backgroundColor: '#E5E5E5', borderRadius: 4, overflow: 'hidden' }}>
                 <div 
                   style={{ 
                     width: `${stats.conversionRate}%`, 
                     height: '100%', 
-                    background: 'linear-gradient(90deg, #10b981, #34d399)',
+                    backgroundColor: 'var(--success)',
                     borderRadius: 4,
                     transition: 'width 0.6s ease'
                   }} 
@@ -179,7 +179,7 @@ export const AnalyticsCharts = ({ stats }) => {
           style={{
             marginTop: '1.5rem',
             padding: '0.75rem 1rem',
-            backgroundColor: 'var(--bg-surface-elevated)',
+            backgroundColor: '#FFFFFF',
             borderRadius: 'var(--radius-md)',
             display: 'flex',
             alignItems: 'center',
@@ -187,7 +187,7 @@ export const AnalyticsCharts = ({ stats }) => {
             border: '1px solid var(--border-subtle)'
           }}
         >
-          <TrendingUp size={20} style={{ color: '#60a5fa', flexShrink: 0 }} />
+          <TrendingUp size={20} style={{ color: '#111111', flexShrink: 0 }} />
           <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
             {callLaterCount > 0 ? (
               <>You have <strong>{callLaterCount} follow-ups scheduled</strong> in "Call Later". Check them out today!</>
