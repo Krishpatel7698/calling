@@ -1,33 +1,15 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { ForgotPasswordModal } from '../components/ForgotPasswordModal';
-import { 
-  PhoneCall, 
-  Lock, 
-  Mail, 
-  ArrowRight, 
-  AlertCircle, 
-  UserPlus, 
-  LogIn, 
-  ShieldCheck,
-  User,
-  KeyRound,
-  Shield
-} from 'lucide-react';
+import { PhoneCall, Lock, Mail, ArrowRight, AlertCircle, UserPlus, LogIn, ShieldCheck } from 'lucide-react';
 
 export const Login = () => {
   const { login, signup, isFirebaseConnected } = useAuth();
-
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [displayName, setDisplayName] = useState('');
-  const [selectedRole, setSelectedRole] = useState('Sales Executive');
-  
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [isForgotModalOpen, setIsForgotModalOpen] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -49,11 +31,11 @@ export const Login = () => {
       }
 
       setIsSubmitting(true);
-      const result = await signup(email.trim(), password, displayName, selectedRole);
+      const result = await signup(email.trim(), password);
       setIsSubmitting(false);
 
       if (!result.success) {
-        setErrorMessage(result.error || 'Failed to create account.');
+        setErrorMessage(result.error || 'Failed to create account. Please check Firebase settings.');
       }
     } else {
       setIsSubmitting(true);
@@ -61,15 +43,16 @@ export const Login = () => {
       setIsSubmitting(false);
 
       if (!result.success) {
-        setErrorMessage(result.error || 'Invalid credentials. Please verify your login details.');
+        setErrorMessage(result.error || 'Failed to sign in. Please check your Firebase credentials.');
       }
     }
   };
 
-  const handleFillDemo = (demoEmail, demoPass) => {
-    setEmail(demoEmail);
-    setPassword(demoPass);
+  const toggleMode = () => {
+    setIsSignUp(!isSignUp);
     setErrorMessage('');
+    setPassword('');
+    setConfirmPassword('');
   };
 
   return (
@@ -80,134 +63,105 @@ export const Login = () => {
         alignItems: 'center',
         justifyContent: 'center',
         padding: '1.5rem',
-        backgroundColor: '#FFFFFF'
+        background: 'radial-gradient(ellipse at top, #1e293b 0%, #090d16 100%)'
       }}
     >
       <div 
         style={{
           width: '100%',
-          maxWidth: '460px',
-          backgroundColor: '#F7F7F7',
+          maxWidth: '440px',
+          backgroundColor: 'var(--bg-surface)',
           borderRadius: 'var(--radius-xl)',
-          border: '1px solid #E5E5E5',
+          border: '1px solid var(--border-medium)',
           padding: '2.5rem 2rem',
-          boxShadow: 'var(--shadow-sm)'
+          boxShadow: 'var(--shadow-lg)'
         }}
       >
         {/* Logo and Header */}
-        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
           <div 
             style={{
-              width: 54,
-              height: 54,
+              width: 56,
+              height: 56,
               borderRadius: 'var(--radius-lg)',
-              backgroundColor: '#111111',
+              background: 'linear-gradient(135deg, #3b82f6, #6366f1)',
               display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#FFFFFF',
-              marginBottom: '0.85rem'
+              color: 'white',
+              boxShadow: '0 8px 24px rgba(59, 130, 246, 0.4)',
+              marginBottom: '1rem'
             }}
           >
-            {isSignUp ? <UserPlus size={26} /> : <PhoneCall size={26} />}
+            {isSignUp ? <UserPlus size={28} /> : <PhoneCall size={28} />}
           </div>
-          <h2 style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: '0.35rem', color: '#111111' }}>
-            {isSignUp ? 'Staff Registration' : 'CallPulse CRM'}
+          <h2 style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: '0.35rem' }}>
+            {isSignUp ? 'Create Admin Account' : 'CallPulse CRM'}
           </h2>
-          <p style={{ color: '#666666', fontSize: '0.88rem' }}>
-            {isSignUp ? 'Create staff or admin account' : 'Customer Calling, Sales Pipeline & Billing'}
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+            {isSignUp ? 'Register initial admin user in Firebase' : 'Customer Calling & Lead Management'}
           </p>
 
-          {/* Connection Status Pill */}
+          {/* Connection Mode Pill */}
           <div 
             style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: '0.4rem',
-              marginTop: '0.65rem',
+              marginTop: '0.75rem',
               padding: '0.25rem 0.75rem',
               borderRadius: 'var(--radius-full)',
-              backgroundColor: isFirebaseConnected ? 'rgba(22, 163, 74, 0.1)' : '#FFFFFF',
-              color: isFirebaseConnected ? '#16a34a' : '#666666',
-              border: '1px solid #E5E5E5',
+              backgroundColor: isFirebaseConnected ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+              color: isFirebaseConnected ? '#34d399' : '#f87171',
               fontSize: '0.75rem',
               fontWeight: 600
             }}
           >
             <span 
               className="status-badge-dot" 
-              style={{ backgroundColor: isFirebaseConnected ? '#16a34a' : '#666666' }} 
+              style={{ backgroundColor: isFirebaseConnected ? '#34d399' : '#f87171' }} 
             />
-            {isFirebaseConnected ? 'Cloud Firestore Connected' : 'Local CRM Mode'}
+            {isFirebaseConnected ? 'Firebase Online (.env)' : 'Firebase Disconnected'}
           </div>
         </div>
 
-        {/* Quick Demo Role Fillers (Admin Login vs Employee/Staff Login) */}
-        {!isSignUp && (
-          <div
+        {/* Warning if Firebase credentials are not set in .env */}
+        {!isFirebaseConnected && (
+          <div 
             style={{
-              backgroundColor: '#FFFFFF',
-              border: '1px solid #E5E5E5',
+              backgroundColor: 'rgba(239, 68, 68, 0.1)',
+              color: 'var(--text-primary)',
+              padding: '1rem',
               borderRadius: 'var(--radius-md)',
-              padding: '0.85rem 1rem',
-              marginBottom: '1.25rem'
+              marginBottom: '1.5rem',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+              lineHeight: 1.5
             }}
           >
-            <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#111111', marginBottom: '0.5rem' }}>
-              ⚡ 1-Click Role Login:
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700, color: '#f87171', marginBottom: '0.4rem' }}>
+              <AlertCircle size={17} />
+              <span>Firebase Credentials Required in .env</span>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.4rem' }}>
-              <button
-                type="button"
-                onClick={() => handleFillDemo('admin@calling.com', 'admin123')}
-                style={{
-                  padding: '0.4rem 0.5rem',
-                  fontSize: '0.72rem',
-                  fontWeight: 700,
-                  backgroundColor: '#111111',
-                  border: '1px solid #111111',
-                  color: '#FFFFFF',
-                  borderRadius: '6px',
-                  cursor: 'pointer'
-                }}
-              >
-                👑 Master Admin
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleFillDemo('rahul@calling.com', 'rahul123')}
-                style={{
-                  padding: '0.4rem 0.5rem',
-                  fontSize: '0.72rem',
-                  fontWeight: 700,
-                  backgroundColor: '#F7F7F7',
-                  border: '1px solid #E5E5E5',
-                  color: '#111111',
-                  borderRadius: '6px',
-                  cursor: 'pointer'
-                }}
-              >
-                💼 Sales (Rahul)
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleFillDemo('priya@calling.com', 'priya123')}
-                style={{
-                  padding: '0.4rem 0.5rem',
-                  fontSize: '0.72rem',
-                  fontWeight: 700,
-                  backgroundColor: '#F7F7F7',
-                  border: '1px solid #E5E5E5',
-                  color: '#111111',
-                  borderRadius: '6px',
-                  cursor: 'pointer'
-                }}
-              >
-                🎧 Staff (Priya)
-              </button>
-            </div>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.6rem' }}>
+              Credentials must be placed in the project root <code>.env</code> file:
+            </p>
+            <pre
+              style={{
+                backgroundColor: 'rgba(0, 0, 0, 0.35)',
+                padding: '0.6rem 0.75rem',
+                borderRadius: 'var(--radius-sm)',
+                fontSize: '0.74rem',
+                color: '#93c5fd',
+                overflowX: 'auto',
+                fontFamily: 'monospace',
+                marginBottom: 0
+              }}
+            >
+{`VITE_FIREBASE_API_KEY=your_key
+VITE_FIREBASE_AUTH_DOMAIN=your_domain
+VITE_FIREBASE_PROJECT_ID=your_id
+VITE_FIREBASE_APP_ID=your_app_id`}
+            </pre>
           </div>
         )}
 
@@ -228,96 +182,84 @@ export const Login = () => {
           </div>
         )}
 
-        {/* Form */}
+        {/* Quick Demo Credentials Box */}
+        <div
+          style={{
+            backgroundColor: 'rgba(59, 130, 246, 0.08)',
+            border: '1px solid rgba(59, 130, 246, 0.25)',
+            borderRadius: 'var(--radius-md)',
+            padding: '0.85rem 1rem',
+            marginBottom: '1.25rem',
+            fontSize: '0.82rem'
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+            <span style={{ fontWeight: 700, color: '#93c5fd', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+              🔑 Default Admin Login
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                setEmail('admin@calling.com');
+                setPassword('admin123');
+              }}
+              style={{
+                background: 'rgba(59, 130, 246, 0.2)',
+                border: '1px solid rgba(59, 130, 246, 0.4)',
+                color: '#60a5fa',
+                borderRadius: '6px',
+                padding: '0.25rem 0.6rem',
+                fontSize: '0.72rem',
+                fontWeight: 600,
+                cursor: 'pointer'
+              }}
+            >
+              ⚡ Fill Credentials
+            </button>
+          </div>
+          <div style={{ color: 'var(--text-secondary)', lineHeight: 1.45, fontFamily: 'monospace', fontSize: '0.78rem' }}>
+            <div>ID/Email: <strong style={{ color: '#f1f5f9' }}>admin@calling.com</strong></div>
+            <div>Password: <strong style={{ color: '#f1f5f9' }}>admin123</strong></div>
+          </div>
+        </div>
+
+        {/* Auth Form */}
         <form onSubmit={handleSubmit}>
-          {isSignUp && (
-            <>
-              <div className="form-group">
-                <label className="form-label" htmlFor="staff-name">
-                  Full Name
-                </label>
-                <div style={{ position: 'relative' }}>
-                  <input
-                    id="staff-name"
-                    type="text"
-                    className="form-input"
-                    style={{ paddingLeft: '2.5rem' }}
-                    placeholder="e.g. John Doe"
-                    value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
-                    required
-                  />
-                  <User 
-                    size={17}
-                    style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-tertiary)' }}
-                  />
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">
-                  Assigned Role & Permission
-                </label>
-                <select
-                  className="form-input"
-                  value={selectedRole}
-                  onChange={(e) => setSelectedRole(e.target.value)}
-                >
-                  <option value="Sales Executive">Sales Executive</option>
-                  <option value="Manager">Manager</option>
-                  <option value="Admin">Administrator</option>
-                </select>
-              </div>
-            </>
-          )}
-
           <div className="form-group">
-            <label className="form-label" htmlFor="user-email">
-              Email Address
+            <label className="form-label" htmlFor="admin-email">
+              Admin Email
             </label>
             <div style={{ position: 'relative' }}>
               <input
-                id="user-email"
+                id="admin-email"
                 type="email"
                 className="form-input"
                 style={{ paddingLeft: '2.5rem' }}
-                placeholder="email@company.com"
+                placeholder="admin@company.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
               <Mail 
-                size={17} 
-                style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-tertiary)' }} 
+                size={18} 
+                style={{
+                  position: 'absolute',
+                  left: '0.85rem',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: 'var(--text-tertiary)'
+                }} 
               />
             </div>
           </div>
 
-          <div className="form-group" style={{ marginBottom: isSignUp ? '1rem' : '0.75rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
-              <label className="form-label" htmlFor="user-password" style={{ margin: 0 }}>
-                Password
-              </label>
-              {!isSignUp && (
-                <button
-                  type="button"
-                  onClick={() => setIsForgotModalOpen(true)}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: '#60a5fa',
-                    fontSize: '0.75rem',
-                    cursor: 'pointer',
-                    padding: 0
-                  }}
-                >
-                  Forgot Password?
-                </button>
-              )}
-            </div>
+          <div className="form-group" style={{ marginBottom: isSignUp ? '1rem' : '1.5rem' }}>
+            <label className="form-label" htmlFor="admin-password">
+              Password
+            </label>
             <div style={{ position: 'relative' }}>
               <input
-                id="user-password"
+                id="admin-password"
                 type="password"
                 className="form-input"
                 style={{ paddingLeft: '2.5rem' }}
@@ -327,21 +269,27 @@ export const Login = () => {
                 required
               />
               <Lock 
-                size={17} 
-                style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-tertiary)' }} 
+                size={18} 
+                style={{
+                  position: 'absolute',
+                  left: '0.85rem',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: 'var(--text-tertiary)'
+                }} 
               />
             </div>
           </div>
 
-          {/* Confirm Password for signup */}
+          {/* Confirm Password (Sign Up only) */}
           {isSignUp && (
             <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-              <label className="form-label" htmlFor="user-confirm-password">
+              <label className="form-label" htmlFor="admin-confirm-password">
                 Confirm Password
               </label>
               <div style={{ position: 'relative' }}>
                 <input
-                  id="user-confirm-password"
+                  id="admin-confirm-password"
                   type="password"
                   className="form-input"
                   style={{ paddingLeft: '2.5rem' }}
@@ -351,8 +299,14 @@ export const Login = () => {
                   required
                 />
                 <ShieldCheck 
-                  size={17} 
-                  style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-tertiary)' }} 
+                  size={18} 
+                  style={{
+                    position: 'absolute',
+                    left: '0.85rem',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    color: 'var(--text-tertiary)'
+                  }} 
                 />
               </div>
             </div>
@@ -361,22 +315,22 @@ export const Login = () => {
           <button
             type="submit"
             className="btn btn-primary"
-            style={{ width: '100%', padding: '0.85rem', marginTop: '0.5rem' }}
-            disabled={isSubmitting}
+            style={{ width: '100%', padding: '0.85rem' }}
+            disabled={isSubmitting || !isFirebaseConnected}
             id="auth-submit-btn"
           >
             {isSubmitting ? (
               isSignUp ? 'Creating account...' : 'Signing in...'
             ) : (
               <>
-                <span>{isSignUp ? 'Create Staff Account' : 'Sign in to CRM'}</span>
+                <span>{isSignUp ? 'Create Admin Account' : 'Sign in to CRM'}</span>
                 <ArrowRight size={17} />
               </>
             )}
           </button>
         </form>
 
-        {/* Toggle between Login and Registration */}
+        {/* Toggle between Sign In and Sign Up */}
         <div 
           style={{ 
             marginTop: '1.5rem', 
@@ -389,35 +343,45 @@ export const Login = () => {
         >
           {isSignUp ? (
             <span>
-              Already registered?{' '}
+              Already have an account?{' '}
               <button
                 type="button"
-                onClick={() => { setIsSignUp(false); setErrorMessage(''); }}
-                style={{ background: 'none', border: 'none', color: '#60a5fa', fontWeight: 600, cursor: 'pointer', padding: 0, textDecoration: 'underline' }}
+                onClick={toggleMode}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#60a5fa',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  padding: 0,
+                  textDecoration: 'underline'
+                }}
               >
                 Sign in
               </button>
             </span>
           ) : (
             <span>
-              Need a new account?{' '}
+              Don't have an admin account yet?{' '}
               <button
                 type="button"
-                onClick={() => { setIsSignUp(true); setErrorMessage(''); }}
-                style={{ background: 'none', border: 'none', color: '#60a5fa', fontWeight: 600, cursor: 'pointer', padding: 0, textDecoration: 'underline' }}
+                onClick={toggleMode}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#60a5fa',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  padding: 0,
+                  textDecoration: 'underline'
+                }}
               >
-                Register Staff
+                Create Account
               </button>
             </span>
           )}
         </div>
       </div>
-
-      {/* Forgot Password Modal */}
-      <ForgotPasswordModal
-        isOpen={isForgotModalOpen}
-        onClose={() => setIsForgotModalOpen(false)}
-      />
     </div>
   );
 };

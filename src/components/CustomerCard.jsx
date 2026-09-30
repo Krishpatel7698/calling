@@ -7,129 +7,100 @@ import {
   Phone, 
   Edit, 
   Trash2, 
-  Calendar, 
-  MessageCircle, 
-  ExternalLink,
-  DollarSign,
-  Clock
+  Calendar,
+  MessageCircle,
+  ExternalLink
 } from 'lucide-react';
 
 export const CustomerCard = ({ customer, onViewDetails }) => {
-  const { initiateCall, openEditModal, deleteCustomer, openCallModal, companySettings } = useCustomers();
+  const { initiateCall, openEditModal, deleteCustomer } = useCustomers();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const cleanPhone = (customer.phone || '').replace(/[^0-9+]/g, '');
   const companyInitial = (customer.companyName || customer.customerName || 'C')[0].toUpperCase();
-  const currency = companySettings.currency || '₹';
 
   const formattedDate = customer.createdAt || customer.dateAdded
     ? new Date(customer.createdAt || customer.dateAdded).toLocaleDateString(undefined, {
         month: 'short',
-        day: 'numeric'
+        day: 'numeric',
+        year: 'numeric'
       })
     : 'Recently';
 
-  const whatsappUrl = `https://wa.me/${cleanPhone.replace('+', '')}?text=${encodeURIComponent(`Hello ${customer.customerName || ''}, greeting from ${companySettings.companyName}!`)}`;
+  const whatsappUrl = `https://wa.me/${cleanPhone.replace('+', '')}`;
 
   return (
     <div className="customer-card">
       {/* Header: Company Name & Badges */}
       <div className="customer-card-header">
-        <div 
-          style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', overflow: 'hidden', cursor: 'pointer', flex: 1 }}
-          onClick={() => onViewDetails && onViewDetails(customer)}
-        >
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', overflow: 'hidden' }}>
           <div 
             className="avatar-circle"
             style={{
-              backgroundColor: '#111111',
+              background: customer.hasProject 
+                ? 'linear-gradient(135deg, #1e3a8a, #1d4ed8)' 
+                : 'linear-gradient(135deg, #334155, #475569)',
               color: '#ffffff'
             }}
           >
             {companyInitial}
           </div>
           <div style={{ overflow: 'hidden' }}>
+            {/* 1. Company Name */}
             <h4 
               className="customer-name" 
-              style={{ fontSize: '1.05rem', marginBottom: '0.15rem', color: 'var(--text-primary)' }}
+              style={{ fontSize: '1.1rem', marginBottom: '0.15rem' }}
               title={customer.companyName}
             >
               {customer.companyName || 'Unnamed Company'}
             </h4>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: 'var(--text-secondary)', fontSize: '0.82rem' }}>
+            {/* 2. Customer Name */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: 'var(--text-secondary)', fontSize: '0.88rem' }}>
               <User size={13} style={{ color: 'var(--text-tertiary)' }} />
               <span>{customer.customerName || customer.name}</span>
             </div>
           </div>
         </div>
 
-        {/* Stage & Project Badges */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.3rem' }}>
-          <span 
-            className="status-badge"
-            style={{
-              backgroundColor: customer.leadStatus === 'Won' 
-                ? 'var(--success-bg)' 
-                : customer.leadStatus === 'Lost' 
-                  ? 'var(--danger-bg)' 
-                  : 'var(--bg-surface)',
-              color: customer.leadStatus === 'Won' 
-                ? 'var(--success)' 
-                : customer.leadStatus === 'Lost' 
-                  ? 'var(--danger)' 
-                  : 'var(--text-primary)',
-              borderColor: customer.leadStatus === 'Won' 
-                ? 'var(--success-border)' 
-                : customer.leadStatus === 'Lost' 
-                  ? 'var(--danger-border)' 
-                  : 'var(--border-subtle)',
-              fontSize: '0.72rem'
-            }}
-          >
-            {customer.leadStatus || customer.status}
-          </span>
+        {/* 4 & 5. Project Badges */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.35rem' }}>
+          <ProjectBadge hasProject={customer.hasProject} />
           {customer.hasProject && customer.projectType && (
             <ProjectTypeBadge type={customer.projectType} />
           )}
         </div>
       </div>
 
-      {/* Highlights Bar: Deal Value & Follow-up */}
+      {/* 3. Phone Number */}
       <div 
         style={{
           display: 'flex',
-          justifyContent: 'space-between',
           alignItems: 'center',
-          backgroundColor: '#FFFFFF',
+          justifyContent: 'space-between',
+          backgroundColor: 'var(--bg-surface-elevated)',
           borderRadius: 'var(--radius-md)',
-          padding: '0.55rem 0.85rem',
-          border: '1px solid var(--border-subtle)',
-          fontSize: '0.8rem'
+          padding: '0.65rem 0.85rem',
+          border: '1px solid var(--border-subtle)'
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-          <span style={{ color: 'var(--text-tertiary)' }}>Value:</span>
-          <strong style={{ color: 'var(--success)', fontFamily: 'monospace' }}>
-            {currency}{Number(customer.dealValue || 0).toLocaleString()}
-          </strong>
-        </div>
+        <a 
+          href={`tel:${cleanPhone}`} 
+          className="customer-phone-link"
+          style={{ fontFamily: 'monospace', fontSize: '0.95rem', fontWeight: 600, color: '#38bdf8' }}
+        >
+          <Phone size={14} style={{ color: '#10b981' }} />
+          <span>{customer.phone}</span>
+        </a>
 
-        {customer.followUpDate ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', color: 'var(--warning)', fontSize: '0.75rem', fontWeight: 600 }}>
-            <Clock size={12} />
-            <span>Follow-up: {customer.followUpDate}</span>
-          </div>
-        ) : (
-          <span style={{ fontSize: '0.72rem', color: 'var(--text-tertiary)' }}>
-            Added: {formattedDate}
-          </span>
-        )}
+        <span style={{ fontSize: '0.72rem', color: 'var(--text-tertiary)' }}>
+          {formattedDate}
+        </span>
       </div>
 
-      {/* Notes preview if any */}
+      {/* Notes if any */}
       {customer.notes && (
-        <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', backgroundColor: '#FFFFFF', padding: '0.45rem 0.65rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)', borderLeft: '3px solid #111111', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', backgroundColor: 'rgba(255, 255, 255, 0.02)', padding: '0.5rem 0.75rem', borderRadius: 'var(--radius-sm)', borderLeft: '2px solid var(--primary)' }}>
           {customer.notes}
         </div>
       )}
@@ -138,8 +109,8 @@ export const CustomerCard = ({ customer, onViewDetails }) => {
       {showDeleteConfirm ? (
         <div 
           style={{
-            backgroundColor: 'var(--danger-bg)',
-            border: '1px solid var(--danger-border)',
+            backgroundColor: 'rgba(239, 68, 68, 0.12)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
             borderRadius: 'var(--radius-md)',
             padding: '0.75rem',
             display: 'flex',
@@ -148,7 +119,7 @@ export const CustomerCard = ({ customer, onViewDetails }) => {
             gap: '0.5rem'
           }}
         >
-          <span style={{ fontSize: '0.8rem', color: 'var(--danger)' }}>
+          <span style={{ fontSize: '0.8rem', color: '#fca5a5' }}>
             Delete inquiry for <strong>{customer.companyName || customer.customerName}</strong>?
           </span>
           <div style={{ display: 'flex', gap: '0.35rem' }}>
@@ -174,16 +145,15 @@ export const CustomerCard = ({ customer, onViewDetails }) => {
       ) : (
         /* Action Buttons Row */
         <div className="customer-actions-row">
-          {/* Main Call Customer Button */}
+          {/* Main Call Customer Button: Direct tel: dialer */}
           <a
             href={`tel:${cleanPhone}`}
             className="btn btn-call btn-mobile-call"
             id={`call-btn-${customer.id}`}
             title={`Call ${customer.phone}`}
-            onClick={() => openCallModal(customer)}
           >
-            <Phone size={16} />
-            <span>{customer.phone}</span>
+            <Phone size={17} />
+            <span>Call Customer</span>
           </a>
 
           {/* WhatsApp Direct Chat */}
@@ -197,16 +167,6 @@ export const CustomerCard = ({ customer, onViewDetails }) => {
             <MessageCircle size={16} />
           </a>
 
-          {/* View Details */}
-          <button
-            type="button"
-            className="btn btn-secondary btn-sm btn-icon"
-            onClick={() => onViewDetails && onViewDetails(customer)}
-            title="View Full Profile"
-          >
-            <ExternalLink size={15} />
-          </button>
-
           {/* Edit Button */}
           <button
             type="button"
@@ -215,7 +175,7 @@ export const CustomerCard = ({ customer, onViewDetails }) => {
             title="Edit Inquiry"
             id={`edit-btn-${customer.id}`}
           >
-            <Edit size={15} />
+            <Edit size={16} />
           </button>
 
           {/* Delete Button */}
@@ -227,7 +187,7 @@ export const CustomerCard = ({ customer, onViewDetails }) => {
             title="Delete Inquiry"
             id={`delete-btn-${customer.id}`}
           >
-            <Trash2 size={15} />
+            <Trash2 size={16} />
           </button>
         </div>
       )}

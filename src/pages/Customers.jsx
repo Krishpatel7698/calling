@@ -9,20 +9,17 @@ import {
   List, 
   X,
   PhoneCall,
-  Briefcase,
-  TrendingUp
+  Briefcase
 } from 'lucide-react';
 
 const FILTER_TABS = [
-  { id: 'All', label: 'All Leads' },
-  { id: 'New Lead', label: 'New' },
-  { id: 'Contacted', label: 'Contacted' },
-  { id: 'Interested', label: 'Interested' },
-  { id: 'Proposal', label: 'Proposal' },
-  { id: 'Negotiation', label: 'Negotiation' },
-  { id: 'Won', label: 'Won 🏆' },
-  { id: 'Lost', label: 'Lost' },
-  { id: 'Yes', label: 'With Project' }
+  { id: 'All', label: 'All Inquiries' },
+  { id: 'Yes', label: 'Projects (Yes)' },
+  { id: 'No', label: 'No Project' },
+  { id: 'Mobile App', label: 'Mobile App' },
+  { id: 'Website', label: 'Website' },
+  { id: 'CRM', label: 'CRM' },
+  { id: 'ERP', label: 'ERP' }
 ];
 
 export const Customers = ({ setActivePage, onViewDetails }) => {
@@ -41,14 +38,12 @@ export const Customers = ({ setActivePage, onViewDetails }) => {
   const getCount = (tabId) => {
     switch (tabId) {
       case 'All': return stats.total;
-      case 'New Lead': return stats.newLeads;
-      case 'Contacted': return stats.contactedLeads;
-      case 'Interested': return stats.interestedLeads;
-      case 'Proposal': return stats.proposalLeads;
-      case 'Negotiation': return stats.negotiationLeads;
-      case 'Won': return stats.converted;
-      case 'Lost': return stats.lost;
       case 'Yes': return stats.withProject;
+      case 'No': return stats.withoutProject;
+      case 'Mobile App': return stats.mobileApps;
+      case 'Website': return stats.websites;
+      case 'CRM': return stats.crms;
+      case 'ERP': return stats.erps;
       default: return 0;
     }
   };
@@ -66,7 +61,7 @@ export const Customers = ({ setActivePage, onViewDetails }) => {
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
           <div>
-            <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>Customer & Lead Management</h2>
+            <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>Customer & Project Inquiries</h2>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
               Showing {filteredCustomers.length} of {customers.length} total entries
             </p>
@@ -105,19 +100,12 @@ export const Customers = ({ setActivePage, onViewDetails }) => {
 
             <button
               type="button"
-              className="btn btn-secondary"
-              onClick={() => setActivePage('pipeline')}
-            >
-              <TrendingUp size={16} /> Pipeline
-            </button>
-
-            <button
-              type="button"
               className="btn btn-primary"
               onClick={() => setActivePage('add-customer')}
               id="customers-add-btn"
             >
-              <UserPlus size={16} /> Add Lead
+              <UserPlus size={16} />
+              <span>Add Inquiry</span>
             </button>
           </div>
         </div>
@@ -139,7 +127,7 @@ export const Customers = ({ setActivePage, onViewDetails }) => {
             <Search size={18} style={{ color: 'var(--text-tertiary)' }} />
             <input
               type="text"
-              placeholder="Search by company, customer name, phone, email, notes..."
+              placeholder="Search by company, customer name, phone, or project type..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               style={{
@@ -198,6 +186,7 @@ export const Customers = ({ setActivePage, onViewDetails }) => {
                   color: isSelected ? '#60a5fa' : 'var(--text-secondary)',
                   transition: 'all 0.15s ease'
                 }}
+                id={`filter-tab-${tab.id.toLowerCase().replace(/\s+/g, '-')}`}
               >
                 <span>{tab.label}</span>
                 <span 
@@ -246,11 +235,11 @@ export const Customers = ({ setActivePage, onViewDetails }) => {
             <Briefcase size={26} />
           </div>
           <div>
-            <h3 style={{ fontSize: '1.15rem', fontWeight: 700 }}>No leads found</h3>
+            <h3 style={{ fontSize: '1.15rem', fontWeight: 700 }}>No inquiries found</h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', marginTop: '0.25rem' }}>
               {searchQuery 
                 ? `No inquiries match your search "${searchQuery}".` 
-                : `No leads in this stage right now.`}
+                : `No inquiries in this category yet.`}
             </p>
           </div>
           <button
@@ -258,7 +247,7 @@ export const Customers = ({ setActivePage, onViewDetails }) => {
             className="btn btn-primary"
             onClick={() => setActivePage('add-customer')}
           >
-            <UserPlus size={16} /> Add First Lead
+            <UserPlus size={16} /> Add First Inquiry
           </button>
         </div>
       ) : viewMode === 'grid' ? (

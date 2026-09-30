@@ -4,8 +4,6 @@ import {
   Building2, 
   User, 
   Phone, 
-  Mail,
-  MapPin,
   HelpCircle, 
   CheckCircle2, 
   ArrowLeft,
@@ -13,39 +11,24 @@ import {
   Globe,
   Briefcase,
   Cpu,
-  Layers,
-  Calendar,
-  DollarSign,
-  Tag
+  Layers
 } from 'lucide-react';
 
 const PROJECT_TYPES = [
-  { id: 'Mobile App', label: 'Mobile App', icon: Smartphone, desc: 'iOS & Android app' },
-  { id: 'Website', label: 'Website', icon: Globe, desc: 'Corporate site or e-commerce' },
-  { id: 'CRM', label: 'CRM', icon: Briefcase, desc: 'Lead management & calling CRM' },
-  { id: 'ERP', label: 'ERP', icon: Cpu, desc: 'Enterprise operations software' }
+  { id: 'Mobile App', label: 'Mobile App', icon: Smartphone, desc: 'iOS & Android native or hybrid app' },
+  { id: 'Website', label: 'Website', icon: Globe, desc: 'Corporate site, web portal, or e-commerce' },
+  { id: 'CRM', label: 'CRM', icon: Briefcase, desc: 'Lead management & sales pipeline system' },
+  { id: 'ERP', label: 'ERP', icon: Cpu, desc: 'Enterprise resource & operations planning' }
 ];
 
 export const AddCustomer = ({ setActivePage }) => {
-  const { addCustomer, leadSources, leadStatuses, companySettings } = useCustomers();
-
-  const todayStr = new Date().toISOString().slice(0, 10);
-  const tomorrowStr = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
+  const { addCustomer } = useCustomers();
 
   const [companyName, setCompanyName] = useState('');
   const [customerName, setCustomerName] = useState('');
   const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
-  const [address, setAddress] = useState('');
-  const [dealValue, setDealValue] = useState('');
-  const [expectedCloseDate, setExpectedCloseDate] = useState(tomorrowStr);
-  const [assignedTo, setAssignedTo] = useState('Master Admin');
-  const [leadSource, setLeadSource] = useState('Website');
-  const [leadStatus, setLeadStatus] = useState('New Lead');
   const [hasProject, setHasProject] = useState(true);
   const [projectType, setProjectType] = useState('Mobile App');
-  const [followUpDate, setFollowUpDate] = useState(todayStr);
-  const [followUpTime, setFollowUpTime] = useState('11:00');
   const [notes, setNotes] = useState('');
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -61,7 +44,7 @@ export const AddCustomer = ({ setActivePage }) => {
       return;
     }
     if (!customerName.trim()) {
-      setErrorMessage('Please enter the customer / contact person name.');
+      setErrorMessage('Please enter the customer name.');
       return;
     }
     if (!phone.trim()) {
@@ -74,17 +57,8 @@ export const AddCustomer = ({ setActivePage }) => {
       companyName: companyName.trim(),
       customerName: customerName.trim(),
       phone: phone.trim(),
-      email: email.trim(),
-      address: address.trim(),
-      dealValue: Number(dealValue) || 0,
-      expectedCloseDate,
-      assignedTo,
-      leadSource,
-      leadStatus,
       hasProject,
       projectType: hasProject ? projectType : '',
-      followUpDate,
-      followUpTime,
       notes: notes.trim()
     });
     setIsSubmitting(false);
@@ -95,17 +69,16 @@ export const AddCustomer = ({ setActivePage }) => {
       setCompanyName('');
       setCustomerName('');
       setPhone('');
-      setEmail('');
-      setAddress('');
-      setDealValue('');
+      setHasProject(true);
+      setProjectType('Mobile App');
       setNotes('');
     } else {
-      setErrorMessage(result.error || 'Failed to save lead. Please try again.');
+      setErrorMessage(result.error || 'Failed to save inquiry. Please try again.');
     }
   };
 
   return (
-    <div className="page-container" style={{ maxWidth: '780px' }}>
+    <div className="page-container" style={{ maxWidth: '680px' }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -118,9 +91,9 @@ export const AddCustomer = ({ setActivePage }) => {
             <ArrowLeft size={17} />
           </button>
           <div>
-            <h2 style={{ fontSize: '1.35rem', fontWeight: 800 }}>Add New Customer / Lead</h2>
+            <h2 style={{ fontSize: '1.35rem', fontWeight: 800 }}>Save Project Inquiry</h2>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-              Save contact person, company details, pipeline stage, and follow-up reminders
+              Save customer details and development requirements directly to Firebase
             </p>
           </div>
         </div>
@@ -144,9 +117,9 @@ export const AddCustomer = ({ setActivePage }) => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <CheckCircle2 size={24} style={{ color: '#34d399', flexShrink: 0 }} />
             <div>
-              <div style={{ fontWeight: 700, color: '#34d399' }}>Lead Saved Successfully!</div>
+              <div style={{ fontWeight: 700, color: '#34d399' }}>Inquiry Saved Successfully!</div>
               <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                Recorded securely and scheduled for follow-up.
+                Recorded securely in Firebase Firestore.
               </div>
             </div>
           </div>
@@ -156,7 +129,7 @@ export const AddCustomer = ({ setActivePage }) => {
               className="btn btn-primary btn-sm"
               onClick={() => setActivePage('customers')}
             >
-              View Leads List
+              View List
             </button>
             <button
               type="button"
@@ -186,257 +159,174 @@ export const AddCustomer = ({ setActivePage }) => {
         </div>
       )}
 
-      {/* Form Card */}
+      {/* Main Form Card */}
       <div className="card">
         <form onSubmit={handleSubmit}>
-          {/* Section 1: Company & Contact */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-            <div className="form-group">
-              <label className="form-label" htmlFor="company-name-input">
-                Company Name *
-              </label>
-              <div style={{ position: 'relative' }}>
-                <input
-                  id="company-name-input"
-                  type="text"
-                  className="form-input"
-                  style={{ paddingLeft: '2.5rem' }}
-                  placeholder="e.g. Apex Innovations Pvt Ltd"
-                  value={companyName}
-                  onChange={(e) => setCompanyName(e.target.value)}
-                  required
-                />
-                <Building2 
-                  size={17} 
-                  style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-tertiary)' }} 
-                />
-              </div>
-            </div>
-
-            <div className="form-group">
-              <label className="form-label" htmlFor="customer-name-input">
-                Contact Person Name *
-              </label>
-              <div style={{ position: 'relative' }}>
-                <input
-                  id="customer-name-input"
-                  type="text"
-                  className="form-input"
-                  style={{ paddingLeft: '2.5rem' }}
-                  placeholder="e.g. Rahul Sharma"
-                  value={customerName}
-                  onChange={(e) => setCustomerName(e.target.value)}
-                  required
-                />
-                <User 
-                  size={17} 
-                  style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-tertiary)' }} 
-                />
-              </div>
-            </div>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-            <div className="form-group">
-              <label className="form-label" htmlFor="customer-phone-input">
-                Mobile Number *
-              </label>
-              <div style={{ position: 'relative' }}>
-                <input
-                  id="customer-phone-input"
-                  type="tel"
-                  className="form-input"
-                  style={{ paddingLeft: '2.5rem' }}
-                  placeholder="e.g. +91 98765 43210"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  required
-                />
-                <Phone 
-                  size={17} 
-                  style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-tertiary)' }} 
-                />
-              </div>
-            </div>
-
-            <div className="form-group">
-              <label className="form-label" htmlFor="customer-email-input">
-                Email Address
-              </label>
-              <div style={{ position: 'relative' }}>
-                <input
-                  id="customer-email-input"
-                  type="email"
-                  className="form-input"
-                  style={{ paddingLeft: '2.5rem' }}
-                  placeholder="e.g. client@company.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-                <Mail 
-                  size={17} 
-                  style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-tertiary)' }} 
-                />
-              </div>
-            </div>
-          </div>
-
+          {/* 1. Company Name */}
           <div className="form-group">
-            <label className="form-label" htmlFor="customer-address-input">
-              Address / City / Location
+            <label className="form-label" htmlFor="company-name-input">
+              1. Company Name *
             </label>
             <div style={{ position: 'relative' }}>
               <input
-                id="customer-address-input"
+                id="company-name-input"
                 type="text"
                 className="form-input"
                 style={{ paddingLeft: '2.5rem' }}
-                placeholder="e.g. 402, Titanium City Centre, Ahmedabad, Gujarat"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
+                placeholder="e.g. Apex Logistics, TechNova Inc."
+                value={companyName}
+                onChange={(e) => setCompanyName(e.target.value)}
+                required
               />
-              <MapPin 
-                size={17} 
-                style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-tertiary)' }} 
+              <Building2 
+                size={18} 
+                style={{
+                  position: 'absolute',
+                  left: '0.85rem',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: 'var(--text-tertiary)'
+                }} 
               />
             </div>
           </div>
 
-          {/* Section 2: Pipeline, Deal Value & Assignee */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
-            <div className="form-group">
-              <label className="form-label">Deal Value ({companySettings.currency || '₹'})</label>
-              <div style={{ position: 'relative' }}>
-                <input
-                  type="number"
-                  className="form-input"
-                  style={{ paddingLeft: '2.2rem' }}
-                  placeholder="e.g. 85000"
-                  value={dealValue}
-                  onChange={(e) => setDealValue(e.target.value)}
-                />
-                <DollarSign 
-                  size={16}
-                  style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#34d399' }}
-                />
-              </div>
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Lead Source</label>
-              <select
-                className="form-input"
-                value={leadSource}
-                onChange={(e) => setLeadSource(e.target.value)}
-              >
-                {leadSources.map((s) => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Assign To Employee</label>
-              <select
-                className="form-input"
-                value={assignedTo}
-                onChange={(e) => setAssignedTo(e.target.value)}
-              >
-                <option value="Master Admin">Master Admin</option>
-                <option value="Rahul Sharma">Rahul Sharma</option>
-                <option value="Priya Patel">Priya Patel</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Section 3: Next Follow-up Alert */}
-          <div 
-            style={{
-              padding: '1rem',
-              backgroundColor: 'rgba(251, 191, 36, 0.06)',
-              border: '1px solid rgba(251, 191, 36, 0.25)',
-              borderRadius: 'var(--radius-md)',
-              marginBottom: '1.25rem'
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#fbbf24', fontWeight: 700, fontSize: '0.85rem', marginBottom: '0.75rem' }}>
-              <Calendar size={15} />
-              <span>Schedule Initial Call / Follow-up</span>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '0.75rem' }}>
-              <div>
-                <label className="form-label" style={{ fontSize: '0.75rem' }}>Follow-up Date</label>
-                <input
-                  type="date"
-                  className="form-input"
-                  value={followUpDate}
-                  onChange={(e) => setFollowUpDate(e.target.value)}
-                />
-              </div>
-
-              <div>
-                <label className="form-label" style={{ fontSize: '0.75rem' }}>Preferred Time</label>
-                <input
-                  type="time"
-                  className="form-input"
-                  value={followUpTime}
-                  onChange={(e) => setFollowUpTime(e.target.value)}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Section 4: Project Requirement (Yes/No) */}
+          {/* 2. Customer Name */}
           <div className="form-group">
-            <label className="form-label">Does this customer have a software project requirement?</label>
+            <label className="form-label" htmlFor="customer-name-input">
+              2. Customer Name *
+            </label>
+            <div style={{ position: 'relative' }}>
+              <input
+                id="customer-name-input"
+                type="text"
+                className="form-input"
+                style={{ paddingLeft: '2.5rem' }}
+                placeholder="e.g. John Doe, Priya Patel"
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+                required
+              />
+              <User 
+                size={18} 
+                style={{
+                  position: 'absolute',
+                  left: '0.85rem',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: 'var(--text-tertiary)'
+                }} 
+              />
+            </div>
+          </div>
+
+          {/* 3. Phone Number */}
+          <div className="form-group">
+            <label className="form-label" htmlFor="customer-phone-input">
+              3. Phone Number *
+            </label>
+            <div style={{ position: 'relative' }}>
+              <input
+                id="customer-phone-input"
+                type="tel"
+                className="form-input"
+                style={{ paddingLeft: '2.5rem' }}
+                placeholder="e.g. +91 98765 43210 or +1 (555) 234-8901"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                required
+              />
+              <Phone 
+                size={18} 
+                style={{
+                  position: 'absolute',
+                  left: '0.85rem',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: 'var(--text-tertiary)'
+                }} 
+              />
+            </div>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', marginTop: '0.2rem' }}>
+              The Call button will directly dial this number on mobile phones.
+            </span>
+          </div>
+
+          {/* 4. Is there a Project? (Yes / No) */}
+          <div className="form-group" style={{ marginTop: '1.25rem' }}>
+            <label className="form-label">
+              4. Is there a Project? *
+            </label>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+              {/* Option Yes */}
               <button
                 type="button"
+                id="project-yes-btn"
                 onClick={() => setHasProject(true)}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '0.5rem',
-                  padding: '0.75rem',
+                  padding: '0.85rem',
                   borderRadius: 'var(--radius-md)',
                   backgroundColor: hasProject ? 'rgba(16, 185, 129, 0.16)' : 'var(--bg-surface-elevated)',
                   border: `2px solid ${hasProject ? '#10b981' : 'var(--border-subtle)'}`,
                   color: hasProject ? '#34d399' : 'var(--text-secondary)',
                   fontWeight: 700,
-                  cursor: 'pointer'
+                  fontSize: '1rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
                 }}
               >
-                <CheckCircle2 size={17} /> Yes
+                <CheckCircle2 size={18} />
+                <span>Yes</span>
               </button>
 
+              {/* Option No */}
               <button
                 type="button"
+                id="project-no-btn"
                 onClick={() => setHasProject(false)}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '0.5rem',
-                  padding: '0.75rem',
+                  padding: '0.85rem',
                   borderRadius: 'var(--radius-md)',
                   backgroundColor: !hasProject ? 'rgba(148, 163, 184, 0.16)' : 'var(--bg-surface-elevated)',
                   border: `2px solid ${!hasProject ? '#94a3b8' : 'var(--border-subtle)'}`,
                   color: !hasProject ? '#f8fafc' : 'var(--text-secondary)',
                   fontWeight: 700,
-                  cursor: 'pointer'
+                  fontSize: '1rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
                 }}
               >
-                No
+                <span>No</span>
               </button>
             </div>
           </div>
 
+          {/* 5. What needs to be created? (Conditional: only if hasProject is true) */}
           {hasProject && (
-            <div style={{ marginBottom: '1.25rem' }}>
-              <label className="form-label" style={{ marginBottom: '0.5rem' }}>Project Type:</label>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.5rem' }}>
+            <div 
+              style={{
+                marginTop: '1.25rem',
+                padding: '1.25rem',
+                backgroundColor: 'rgba(59, 130, 246, 0.05)',
+                border: '1px solid rgba(59, 130, 246, 0.25)',
+                borderRadius: 'var(--radius-lg)',
+                animation: 'fadeIn 0.25s ease-out'
+              }}
+            >
+              <label className="form-label" style={{ marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#60a5fa' }}>
+                <Layers size={16} />
+                <span>5. What needs to be created? *</span>
+              </label>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.65rem' }}>
                 {PROJECT_TYPES.map((type) => {
                   const Icon = type.icon;
                   const isSelected = projectType === type.id;
@@ -444,22 +334,26 @@ export const AddCustomer = ({ setActivePage }) => {
                     <button
                       key={type.id}
                       type="button"
+                      id={`type-btn-${type.id.toLowerCase().replace(/\s+/g, '-')}`}
                       onClick={() => setProjectType(type.id)}
                       style={{
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
-                        gap: '0.35rem',
-                        padding: '0.85rem 0.5rem',
+                        justifyContent: 'center',
+                        gap: '0.45rem',
+                        padding: '1rem 0.75rem',
                         borderRadius: 'var(--radius-md)',
                         backgroundColor: isSelected ? 'rgba(59, 130, 246, 0.2)' : 'var(--bg-surface)',
                         border: `1.5px solid ${isSelected ? '#3b82f6' : 'var(--border-subtle)'}`,
                         color: isSelected ? '#ffffff' : 'var(--text-secondary)',
-                        cursor: 'pointer'
+                        cursor: 'pointer',
+                        textAlign: 'center',
+                        transition: 'all 0.15s ease'
                       }}
                     >
-                      <Icon size={20} style={{ color: isSelected ? '#60a5fa' : 'var(--text-tertiary)' }} />
-                      <span style={{ fontWeight: 700, fontSize: '0.85rem' }}>{type.label}</span>
+                      <Icon size={22} style={{ color: isSelected ? '#60a5fa' : 'var(--text-tertiary)' }} />
+                      <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>{type.label}</span>
                     </button>
                   );
                 })}
@@ -467,22 +361,22 @@ export const AddCustomer = ({ setActivePage }) => {
             </div>
           )}
 
-          {/* Section 5: Notes */}
-          <div className="form-group" style={{ marginBottom: 0 }}>
+          {/* Optional Notes */}
+          <div className="form-group" style={{ marginTop: '1.25rem', marginBottom: 0 }}>
             <label className="form-label" htmlFor="inquiry-notes">
-              Customer Background & Notes
+              Additional Details / Notes (Optional)
             </label>
             <textarea
               id="inquiry-notes"
               className="form-textarea"
               rows={3}
-              placeholder="e.g. Budget range, key objectives, previous vendor issues..."
+              placeholder="e.g. Budget expectations, key deadlines, requirements..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
             />
           </div>
 
-          {/* Submit */}
+          {/* Submit Button */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.75rem' }}>
             <button
               type="button"
@@ -496,9 +390,10 @@ export const AddCustomer = ({ setActivePage }) => {
               type="submit"
               className="btn btn-primary btn-lg"
               disabled={isSubmitting}
+              id="submit-inquiry-btn"
             >
               <CheckCircle2 size={18} />
-              <span>{isSubmitting ? 'Saving Lead...' : 'Save Lead Details'}</span>
+              <span>{isSubmitting ? 'Saving to Firebase...' : 'Save Details'}</span>
             </button>
           </div>
         </form>
