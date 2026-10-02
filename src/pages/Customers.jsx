@@ -51,99 +51,67 @@ export const Customers = ({ setActivePage, onViewDetails }) => {
   return (
     <div className="page-container">
       {/* Search & Actions Header */}
-      <div 
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '1rem',
-          marginBottom: '1.5rem'
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
-          <div>
-            <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>Customer & Project Inquiries</h2>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+      <div className="customers-header-container">
+        <div className="customers-page-header">
+          <div className="customers-title-group">
+            <h2 className="customers-page-heading">Customer & Project Inquiries</h2>
+            <p className="customers-page-subheading">
               Showing {filteredCustomers.length} of {customers.length} total entries
             </p>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div className="customers-actions-group">
             {/* View Mode Toggle (Grid Cards vs Table) */}
-            <div 
-              style={{
-                display: 'flex',
-                backgroundColor: 'var(--bg-surface)',
-                border: '1px solid var(--border-subtle)',
-                borderRadius: 'var(--radius-md)',
-                padding: '2px'
-              }}
-            >
+            <div className="view-mode-toggle">
               <button
                 type="button"
                 className={`btn-icon btn-sm ${viewMode === 'grid' ? 'btn-primary' : 'btn-secondary'}`}
                 onClick={() => setViewMode('grid')}
                 title="Card View (Mobile Optimized)"
-                style={{ width: 32, height: 32 }}
+                style={{ width: 34, height: 34 }}
               >
-                <LayoutGrid size={15} />
+                <LayoutGrid size={16} />
               </button>
               <button
                 type="button"
                 className={`btn-icon btn-sm ${viewMode === 'table' ? 'btn-primary' : 'btn-secondary'}`}
                 onClick={() => setViewMode('table')}
                 title="Table View (Desktop Optimized)"
-                style={{ width: 32, height: 32 }}
+                style={{ width: 34, height: 34 }}
               >
-                <List size={15} />
+                <List size={16} />
               </button>
             </div>
 
             <button
               type="button"
-              className="btn btn-primary"
+              className="btn btn-primary customers-add-btn"
               onClick={() => setActivePage('add-customer')}
               id="customers-add-btn"
             >
               <UserPlus size={16} />
-              <span>Add Inquiry</span>
+              <span className="add-btn-label">Add Inquiry</span>
             </button>
           </div>
         </div>
 
         {/* Search Bar */}
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
-          <div 
-            style={{
-              flex: 1,
-              display: 'flex',
-              alignItems: 'center',
-              backgroundColor: 'var(--bg-surface)',
-              border: '1px solid var(--border-medium)',
-              borderRadius: 'var(--radius-md)',
-              padding: '0.65rem 1rem',
-              gap: '0.75rem'
-            }}
-          >
-            <Search size={18} style={{ color: 'var(--text-tertiary)' }} />
+        <div className="customers-search-container">
+          <div className="customers-search-box">
+            <Search size={18} style={{ color: 'var(--text-tertiary)', flexShrink: 0 }} />
             <input
               type="text"
-              placeholder="Search by company, customer name, phone, or project type..."
+              placeholder="Search by company, customer, phone..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: 'var(--text-primary)',
-                fontSize: '0.9rem',
-                width: '100%'
-              }}
+              className="customers-search-input"
               id="customer-search-input"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                style={{ background: 'none', border: 'none', color: 'var(--text-tertiary)', cursor: 'pointer', padding: 0 }}
+                className="search-clear-btn"
                 aria-label="Clear search"
               >
                 <X size={16} />
@@ -153,16 +121,7 @@ export const Customers = ({ setActivePage, onViewDetails }) => {
         </div>
 
         {/* Filter Tabs Scrollable Row */}
-        <div 
-          style={{
-            display: 'flex',
-            gap: '0.5rem',
-            overflowX: 'auto',
-            paddingBottom: '0.25rem',
-            scrollbarWidth: 'none'
-          }}
-          className="filter-tabs-row"
-        >
+        <div className="filter-tabs-row">
           {FILTER_TABS.map((tab) => {
             const isSelected = projectFilter === tab.id;
             const count = getCount(tab.id);

@@ -112,19 +112,6 @@ export default function App() {
         </main>
       </div>
 
-      {/* Floating Action Button (Mobile Quick Add) */}
-      {activePage !== 'add-customer' && (
-        <button
-          type="button"
-          className="mobile-quick-add-fab"
-          onClick={() => setActivePage('add-customer')}
-          aria-label="Add customer"
-          title="Add Customer"
-        >
-          <Plus size={24} />
-        </button>
-      )}
-
       {/* Mobile Sticky Bottom Navigation */}
       <MobileBottomNav activePage={activePage} setActivePage={setActivePage} />
 

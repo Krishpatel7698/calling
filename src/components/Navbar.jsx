@@ -18,34 +18,44 @@ export const Navbar = ({ activePage, setActivePage }) => {
     }
   };
 
+  const getMobileTitle = () => {
+    switch (activePage) {
+      case 'dashboard': return 'Dashboard';
+      case 'customers': return 'Inquiries';
+      case 'add-customer': return 'New Lead';
+      case 'settings': return 'Settings';
+      case 'customer-details': return 'Details';
+      default: return 'CRM';
+    }
+  };
+
   return (
     <header className="topbar">
-      {/* Left: Current Page Title & Mobile Brand */}
+      {/* Left: Brand & Page Title */}
       <div className="topbar-left">
-        <div style={{ display: 'none' }} className="mobile-brand-wrapper">
-          <PhoneCall size={20} style={{ color: '#3b82f6' }} />
+        <div 
+          className="topbar-brand" 
+          onClick={() => setActivePage('dashboard')}
+          role="button"
+          tabIndex={0}
+          title="CallPulse CRM"
+        >
+          <div className="topbar-brand-icon">
+            <PhoneCall size={18} />
+          </div>
+          <span className="topbar-brand-text">CallPulse</span>
         </div>
-        <div>
-          <h1 className="topbar-title">{getPageTitle()}</h1>
-        </div>
+
+        <span className="topbar-divider">/</span>
+        <h1 className="topbar-title">{getPageTitle()}</h1>
+        <span className="topbar-mobile-badge">{getMobileTitle()}</span>
       </div>
 
       {/* Right: Search, Quick Add, Status & Profile */}
       <div className="topbar-right">
         {/* Quick Search on Desktop */}
         {activePage !== 'customers' && (
-          <div 
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              backgroundColor: 'var(--bg-surface-elevated)',
-              border: '1px solid var(--border-subtle)',
-              borderRadius: 'var(--radius-full)',
-              padding: '0.4rem 0.85rem',
-              gap: '0.5rem',
-              width: 220
-            }}
-          >
+          <div className="topbar-desktop-search">
             <Search size={15} style={{ color: 'var(--text-tertiary)' }} />
             <input
               type="text"
@@ -60,17 +70,18 @@ export const Navbar = ({ activePage, setActivePage }) => {
                 border: 'none',
                 fontSize: '0.85rem',
                 color: 'var(--text-primary)',
-                width: '100%'
+                width: '100%',
+                outline: 'none'
               }}
             />
           </div>
         )}
 
-        {/* Quick Add Button */}
+        {/* Quick Add Button (Desktop Only) */}
         {activePage !== 'add-customer' && (
           <button
             type="button"
-            className="btn btn-primary btn-sm"
+            className="btn btn-primary btn-sm topbar-add-btn"
             onClick={() => setActivePage('add-customer')}
             id="topbar-add-btn"
           >
@@ -83,35 +94,30 @@ export const Navbar = ({ activePage, setActivePage }) => {
         <button
           type="button"
           onClick={() => setActivePage('settings')}
-          style={{
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            padding: 0
-          }}
+          className="topbar-status-btn"
           title={isFirebaseConnected ? 'Firebase Connected' : 'Firebase Disconnected. Click to configure credentials.'}
         >
           <span 
-            className="status-badge" 
+            className="status-badge status-badge-compact" 
             style={{
               backgroundColor: isFirebaseConnected ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
               color: isFirebaseConnected ? '#34d399' : '#f87171',
-              borderColor: isFirebaseConnected ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)',
-              fontSize: '0.75rem'
+              borderColor: isFirebaseConnected ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'
             }}
           >
             <span 
               className="status-badge-dot" 
               style={{ backgroundColor: isFirebaseConnected ? '#34d399' : '#f87171' }} 
             />
-            {isFirebaseConnected ? 'Firebase Live' : 'Disconnected'}
+            <span className="status-text-desktop">{isFirebaseConnected ? 'Firebase Live' : 'Disconnected'}</span>
+            <span className="status-text-mobile">{isFirebaseConnected ? 'Live' : 'Offline'}</span>
           </span>
         </button>
 
-        {/* Logout (Mobile Header Action) */}
+        {/* Logout (Header Action) */}
         <button
           type="button"
-          className="btn-icon btn-secondary btn-sm"
+          className="btn-icon btn-secondary btn-sm topbar-logout-btn"
           onClick={logout}
           title="Sign out"
           id="topbar-logout-btn"

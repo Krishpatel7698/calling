@@ -17,40 +17,26 @@ export const MobileBottomNav = ({ activePage, setActivePage }) => {
       {items.map((item) => {
         const Icon = item.icon;
         const isActive = activePage === item.id;
+        const isAction = item.id === 'add-customer';
+
         return (
           <button
             key={item.id}
             type="button"
-            className={`mobile-nav-btn ${isActive ? 'active' : ''}`}
+            className={`mobile-nav-btn ${isAction ? 'mobile-nav-action-btn' : ''} ${isActive ? 'active' : ''}`}
             onClick={() => setActivePage(item.id)}
             id={`mobile-tab-${item.id}`}
+            aria-label={item.label}
           >
-            <div style={{ position: 'relative' }}>
-              <Icon size={21} />
+            <div className="mobile-nav-icon-wrap">
+              <Icon size={isAction ? 20 : 21} strokeWidth={isAction ? 2.5 : 2} />
               {item.badge !== undefined && item.badge > 0 && (
-                <span 
-                  style={{
-                    position: 'absolute',
-                    top: -4,
-                    right: -10,
-                    backgroundColor: '#3b82f6',
-                    color: 'white',
-                    fontSize: '0.62rem',
-                    fontWeight: 700,
-                    borderRadius: '50%',
-                    minWidth: 16,
-                    height: 16,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: '0 2px'
-                  }}
-                >
+                <span className="mobile-nav-badge">
                   {item.badge}
                 </span>
               )}
             </div>
-            <span>{item.label}</span>
+            <span className="mobile-nav-label">{item.label}</span>
           </button>
         );
       })}
